@@ -17,18 +17,23 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
+	
+	FVector Limites1 = FVector(-2290, -2210, 490);
+	FVector Limites2 = FVector(2090, 1940, 1890);
 
-	class AEnemigo* Enemigo;
-	class AEnemigo* Enemigo2;
-	class AEnemigo* Enemigo3;
+	TArray<class APlataforma*> plataformas;
+	FTimerHandle ControlEventos;
 
-	class AInventoryCharacter* Player1;
+	void AparecerPlataformas();
+	
+	void IniciarMovimientos();
 
-	FTimerHandle TimerHandle;
+	void DesaparecerPlataformas();
 
-	TArray<AActor*> Actores;
+	void DetenerMovimientos();
 
-	void llamarCuadrilla();
+	void desaparecer1();
+	void desaparecer2();
 };
 
 

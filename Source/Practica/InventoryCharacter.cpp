@@ -33,10 +33,6 @@ void AInventoryCharacter::Tick(float DeltaTime)
 		FVector InputVector = FVector(0, 0, 0);
 		InputVector += GetActorForwardVector() * MovementInput.X * DeltaTime;
 		InputVector += GetActorRightVector() * MovementInput.Y * DeltaTime;
-		/* GEngine->AddOnScreenDebugMessage(-1, 1,
-				FColor::Red,
-				FString::Printf(TEXT("x- %f, y - %f, z - %f"),
-			 InputVector.X, InputVector.Y, InputVector.Z)); */
 	}
 	if (!CameraInput.IsNearlyZero())
 	{

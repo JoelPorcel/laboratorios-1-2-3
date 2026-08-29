@@ -39,7 +39,6 @@ void AEnemigo::Tick(float DeltaTime)
 void AEnemigo::movimientoY()
 {
 	if (GetMoverseY()) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Moviendose hacia abajo"));
 		if (moverse)
 		{
 			if (posicionActualY.Y > posicionFinalY.Y) posicionActualY.Y -= incremento;

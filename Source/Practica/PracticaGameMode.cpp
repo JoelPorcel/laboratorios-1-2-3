@@ -6,6 +6,7 @@
 #include "InventoryCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "InventoryActor.h" 
+#include "Plataforma.h"
 
 APracticaGameMode::APracticaGameMode()
 {
@@ -16,32 +17,83 @@ APracticaGameMode::APracticaGameMode()
 void APracticaGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	Enemigo = GetWorld()->SpawnActor<AEnemigo>(AEnemigo::StaticClass(), FVector(-430, -220,250), FRotator::ZeroRotator);
-	Enemigo2 = GetWorld()->SpawnActor<AEnemigo>(AEnemigo::StaticClass(),FVector(-430, 60, 250), FRotator::ZeroRotator);
-	Enemigo3 = GetWorld()->SpawnActor<AEnemigo>(AEnemigo::StaticClass(), FVector(-430, 800, 250), FRotator::ZeroRotator);
-	Player1 = Cast<AInventoryCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	AInventoryActor* InventoryItem = GetWorld()->SpawnActor<AInventoryActor>(FVector(0,0,0), FRotator::ZeroRotator);
-	AInventoryActor* InventoryItem2 = GetWorld()->SpawnActor<AInventoryActor>(FVector(0, 0, 0), FRotator::ZeroRotator);
-	Player1->TakeItem(InventoryItem);
-	Player1->TakeItem(InventoryItem2);
-
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &APracticaGameMode::llamarCuadrilla, 5.0f, false);
-	Actores.Add(Enemigo);
-	Actores.Add(Enemigo2);
-	Actores.Add(Enemigo3);
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::AparecerPlataformas, 5.0f, false);
 }
 
 void APracticaGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
-void APracticaGameMode::llamarCuadrilla()
+void APracticaGameMode::AparecerPlataformas()
 {
-	for (AActor* actor : Actores) {
-		actor->Destroy();
+	for (int32 i = 0; i < 200; i++)
+	{
+		float RandX = FMath::RandRange(Limites1.X, Limites2.X);
+		float RandY = FMath::RandRange(Limites1.Y, Limites2.Y);
+		float RandZ = FMath::RandRange(Limites1.Z, Limites2.Z);
+		FVector LocacionRandom(RandX, RandY, RandZ);
+
+		APlataforma* NuevaPlataforma = GetWorld()->SpawnActor<APlataforma>( LocacionRandom, FRotator::ZeroRotator);
+
+		if (NuevaPlataforma) plataformas.Add(NuevaPlataforma);
 	}
-	AEnemigo* Enemigo4 = GetWorld()->SpawnActor<AEnemigo>(AEnemigo::StaticClass(), FVector(-430, -220, 250), FRotator::ZeroRotator);
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, TEXT("Llamando a la cuadrilla"));
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::IniciarMovimientos, 1.0f, false);
 }
+
+void APracticaGameMode::IniciarMovimientos()
+{
+	for (int32 i = 0; i < plataformas.Num(); i++)
+	{
+		APlataforma* Plat = plataformas[i];
+		if (!Plat) continue;
+
+		int32 TipoMovimiento = i % 10;
+		FVector Direccion;
+
+		switch (TipoMovimiento){
+		case 0: Direccion = FVector(1, 0, 0); break;   
+		case 1: Direccion = FVector(0, 1, 0); break;   
+		case 2: Direccion = FVector(0, 0, 1); break;   
+		case 3: Direccion = FVector(1, 1, 0); break;   
+		case 4: Direccion = FVector(1, -1, 0); break;  
+		case 5: Direccion = FVector(1, 0, 1); break;   
+		case 6: Direccion = FVector(1, 0, -1); break;  
+		case 7: Direccion = FVector(0, 1, 1); break;   
+		case 8: Direccion = FVector(0, 1, -1); break;  
+		case 9: Direccion = FVector(1, 1, 1); break;
+		}
+
+		Plat->DistanciaMover = FMath::RandRange(300.0f, 1500.0f);
+
+		float RapidezAleatoria = FMath::RandRange(150.0f, 400.0f);
+		Plat->VelocidadPlataforma = Direccion.GetSafeNormal() * RapidezAleatoria;
+	}
+
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::DesaparecerPlataformas, 1.0f, true);
+}
+
+void APracticaGameMode::DesaparecerPlataformas()
+{
+		int random = FMath::RandRange(0, plataformas.Num());
+		if (plataformas[random]) plataformas[random]->MeshPlataforma->SetVisibility(false);
+		//if (Plat) Plat->MeshPlataforma->SetVisibility(false);
+
+	//GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::DetenerMovimientos, 5.0f, false);
+}
+
+void APracticaGameMode::DetenerMovimientos()
+{
+	for (APlataforma* Plat : plataformas)
+	{
+		if (Plat) {
+			Plat->MeshPlataforma->SetVisibility(true);
+			Plat->VelocidadPlataforma = FVector::ZeroVector;
+		}
+
+	}
+}
+
+
 
