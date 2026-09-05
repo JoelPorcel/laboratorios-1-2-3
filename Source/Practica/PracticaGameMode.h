@@ -32,8 +32,17 @@ public:
 
 	void DetenerMovimientos();
 
-	void desaparecer1();
-	void desaparecer2();
+	void ReiniciarMovimiento();
+
+
+	FTimerHandle TimerDesaparicion;
+
+	int32 IndiceDesaparicion = 0;
+	void OcultarSiguientePlataforma();
+
+	FTimerHandle TimerDestroy;
+	void destruir();
+	TMap<int, APlataforma*> plataformasMap;
 };
 
 

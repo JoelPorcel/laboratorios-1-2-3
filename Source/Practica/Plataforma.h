@@ -47,4 +47,6 @@ public:
 	FORCEINLINE float GetDistanciaMovida() const {
 		return FVector::Dist(LocacionInicial, GetActorLocation());
 	}
+
+	virtual void mensaje();
 };

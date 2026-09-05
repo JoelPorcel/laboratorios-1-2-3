@@ -6,9 +6,9 @@ APlataforma::APlataforma()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	MeshPlataforma = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshPlataforma"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("StaticMesh'/Game/MyStuff/Plataforma.Plataforma'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("StaticMesh'/Game/StarterContent/Architecture/Wall_Door_400x400.Wall_Door_400x400'"));
 	if (MeshAsset.Succeeded()) MeshPlataforma->SetStaticMesh(MeshAsset.Object);
-
+	SetRootComponent(MeshPlataforma);
 }
 
 // Llamado cuando el juego inicia o cuando es generado (spawned)
@@ -59,4 +59,9 @@ void APlataforma::RotarPlataforma(float DeltaTime)
 {
 	FRotator RotacionAAgregar = VelocidadRotacion * DeltaTime;
 	AddActorLocalRotation(RotacionAAgregar);
+}
+
+void APlataforma::mensaje()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("clase base APlataforma haciendo su movimiento"));
 }

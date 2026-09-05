@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "InventoryActor.h" 
 #include "Plataforma.h"
+#include "PlataformaHija.h"
+#include "PlataformaTerreste.h"
+#include "PlatoformaAcuatica.h"
 
 APracticaGameMode::APracticaGameMode()
 {
@@ -17,7 +20,52 @@ APracticaGameMode::APracticaGameMode()
 void APracticaGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::AparecerPlataformas, 5.0f, false);
+	APlataformaHija* hija = GetWorld()->SpawnActor<APlataformaHija>(FVector(0, 0, 1000), FRotator::ZeroRotator);
+	APlataformaTerreste* terrestre = GetWorld()->SpawnActor<APlataformaTerreste>(FVector(0, 0, 1000), FRotator::ZeroRotator);
+	APlatoformaAcuatica* acuatico = GetWorld()->SpawnActor<APlatoformaAcuatica>(FVector(0, 0, 1000), FRotator::ZeroRotator);
+	APlataforma* plataforma = GetWorld()->SpawnActor<APlataforma>(FVector(0, 0, 1000), FRotator::ZeroRotator);
+
+	plataforma->mensaje();
+	hija->mensaje();
+	terrestre->mensaje();
+	acuatico->mensaje();
+
+
+
+	TArray<APlataforma*> Plataformas;
+	APlataforma* plaformaActual;
+
+	int llave = 1;
+
+	for (int i = 0; i < 200; i++) {
+		int random = FMath::RandRange(0, 2);
+		float RandX = FMath::RandRange(Limites1.X, Limites2.X);
+		float RandY = FMath::RandRange(Limites1.Y, Limites2.Y);
+		float RandZ = FMath::RandRange(Limites1.Z, Limites2.Z);
+
+		FVector LocacionRandom(RandX, RandY, RandZ);
+		if (random == 0) {
+			plaformaActual = GetWorld()->SpawnActor<APlataformaTerreste>(LocacionRandom, FRotator::ZeroRotator);
+
+		}
+		else if (random == 1) {
+			plaformaActual = GetWorld()->SpawnActor<APlatoformaAcuatica>(LocacionRandom, FRotator::ZeroRotator);
+		}
+		else {
+			plaformaActual = GetWorld()->SpawnActor<APlataformaHija>(LocacionRandom, FRotator::ZeroRotator);
+		} 
+		
+		if (plaformaActual) {
+			plataformasMap.Add(llave, plaformaActual);
+			llave++;
+		}
+	}
+
+	int16 n =0;
+
+	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Green, FString::Printf(TEXT("Catidad %i"), n));
+
+
 }
 
 void APracticaGameMode::Tick(float DeltaTime)
@@ -71,16 +119,18 @@ void APracticaGameMode::IniciarMovimientos()
 		Plat->VelocidadPlataforma = Direccion.GetSafeNormal() * RapidezAleatoria;
 	}
 
-	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::DesaparecerPlataformas, 1.0f, true);
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::DesaparecerPlataformas, 10.0f, false);
 }
 
 void APracticaGameMode::DesaparecerPlataformas()
 {
-		int random = FMath::RandRange(0, plataformas.Num());
-		if (plataformas[random]) plataformas[random]->MeshPlataforma->SetVisibility(false);
-		//if (Plat) Plat->MeshPlataforma->SetVisibility(false);
+	for (APlataforma* Plat : plataformas)
+	{
+		float n = plataformas.Num();
+		if (Plat) Plat->MeshPlataforma->SetVisibility(false);
+	}
 
-	//GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::DetenerMovimientos, 5.0f, false);
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::DetenerMovimientos, 5.0f, false);
 }
 
 void APracticaGameMode::DetenerMovimientos()
@@ -93,7 +143,28 @@ void APracticaGameMode::DetenerMovimientos()
 		}
 
 	}
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::ReiniciarMovimiento, 4.0f, false);
 }
+
+void APracticaGameMode::ReiniciarMovimiento()
+{
+	GetWorldTimerManager().SetTimer(ControlEventos, this, &APracticaGameMode::IniciarMovimientos, 1.0f, false);
+}
+
+void APracticaGameMode::OcultarSiguientePlataforma()
+{
+}
+
+void APracticaGameMode::destruir()
+{
+	int random = FMath::RandRange(1, plataformasMap.Num());
+	if (plataformasMap.Contains(random)) {
+	
+		APlatoformaAcuatica* p = Cast<APlatoformaAcuatica>(plataformasMap[random]);
+		if (p) p->Destroy();
+	}
+}
+
 
 
 

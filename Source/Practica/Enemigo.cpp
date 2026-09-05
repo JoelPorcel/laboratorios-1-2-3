@@ -41,7 +41,10 @@ void AEnemigo::movimientoY()
 	if (GetMoverseY()) {
 		if (moverse)
 		{
-			if (posicionActualY.Y > posicionFinalY.Y) posicionActualY.Y -= incremento;
+			if (posicionActualY.Y > posicionFinalY.Y) {
+				posicionActualY.Y -= incremento;
+				posicionActualY.X -= incremento;
+			} 
 			else moverse = false;
 		}
 		else
